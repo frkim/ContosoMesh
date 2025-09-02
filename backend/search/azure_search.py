@@ -6,11 +6,19 @@ This module handles indexing and searching products using Azure AI Search.
 import os
 import json
 from typing import List, Optional, Dict, Any
-from azure.search.documents import SearchClient
-from azure.search.documents.indexes import SearchIndexClient
-from azure.search.documents.models import VectorizedQuery
-from azure.core.credentials import AzureKeyCredential
-from backend.models.schemas import Product
+
+# Try to import Azure SDK, fallback to mock if not available
+try:
+    from azure.search.documents import SearchClient
+    from azure.search.documents.indexes import SearchIndexClient
+    from azure.search.documents.models import VectorizedQuery
+    from azure.core.credentials import AzureKeyCredential
+    AZURE_SDK_AVAILABLE = True
+except ImportError:
+    AZURE_SDK_AVAILABLE = False
+    print("Azure SDK not available - using mock search functionality")
+
+from models.schemas import Product
 
 class AzureSearchService:
     def __init__(self):
@@ -19,10 +27,11 @@ class AzureSearchService:
         self.search_key = os.getenv("AZURE_SEARCH_KEY", "your-search-key")
         self.index_name = "contoso-products"
         
-        # For demo purposes, we'll use mock data if Azure credentials aren't available
-        self.use_mock = not (self.search_endpoint.startswith("https://") and self.search_key != "your-search-key")
+        # Use mock data if Azure credentials aren't available or SDK not installed
+        self.use_mock = (not AZURE_SDK_AVAILABLE or 
+                        not (self.search_endpoint.startswith("https://") and self.search_key != "your-search-key"))
         
-        if not self.use_mock:
+        if not self.use_mock and AZURE_SDK_AVAILABLE:
             self.credential = AzureKeyCredential(self.search_key)
             self.search_client = SearchClient(
                 endpoint=self.search_endpoint,

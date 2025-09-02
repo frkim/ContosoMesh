@@ -3,7 +3,7 @@ import json
 import os
 from datetime import datetime
 from typing import List, Optional
-from backend.models.schemas import Product, Order, OrderItem, OrderStatus
+from models.schemas import Product, Order, OrderItem, OrderStatus
 
 class Database:
     def __init__(self, db_path: str = "contoso_mesh.db"):

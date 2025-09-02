@@ -5,8 +5,8 @@ This agent calculates item prices, applies quantity discounts, and determines fi
 
 from datetime import datetime
 from typing import List, Dict, Any, Optional
-from backend.models.schemas import Order, OrderItem, OrderStatus, AgentResponse, AgentLog
-from backend.database.db import Database
+from models.schemas import Order, OrderItem, OrderStatus, AgentResponse, AgentLog
+from database.db import Database
 
 class PriceAgent:
     def __init__(self, database: Database):

@@ -5,8 +5,8 @@ This agent checks product availability and provides next availability dates.
 
 from datetime import datetime, timedelta
 from typing import List, Dict, Any, Optional
-from backend.models.schemas import Order, OrderItem, OrderStatus, AgentResponse, AgentLog
-from backend.database.db import Database
+from models.schemas import Order, OrderItem, OrderStatus, AgentResponse, AgentLog
+from database.db import Database
 
 class StocksAgent:
     def __init__(self, database: Database):

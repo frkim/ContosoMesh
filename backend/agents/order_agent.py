@@ -6,8 +6,8 @@ This agent coordinates with other agents to process orders end-to-end.
 import uuid
 from datetime import datetime
 from typing import List, Dict, Any, Optional
-from backend.models.schemas import Order, OrderItem, OrderStatus, AgentResponse, AgentLog
-from backend.database.db import Database
+from models.schemas import Order, OrderItem, OrderStatus, AgentResponse, AgentLog
+from database.db import Database
 
 class OrderAgent:
     def __init__(self, database: Database):
