@@ -87,8 +87,8 @@ async def home(request: Request):
     
     return templates.TemplateResponse("index.html", {
         "request": request,
-        "products": products,
-        "orders": orders[:10],  # Latest 10 orders
+        "products": [product.dict() for product in products],
+        "orders": [order.dict() for order in orders[:10]],  # Latest 10 orders
         "agent_stats": agent_manager.get_agent_statistics()
     })
 
