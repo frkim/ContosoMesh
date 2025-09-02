@@ -1,0 +1,194 @@
+[
+  {
+    "id": "SW-001",
+    "name": "SwitchBot Hub Mini",
+    "category": "Smart Home Hub",
+    "description": "Smart home hub that connects all your SwitchBot devices to Wi-Fi and enables remote control",
+    "price": 49.99,
+    "stock": 150,
+    "next_availability": null,
+    "features": ["Wi-Fi connectivity", "IR control", "Voice assistant compatible", "Scene automation"],
+    "specifications": {
+      "dimensions": "80 × 70 × 23 mm",
+      "weight": "60g",
+      "connectivity": ["Wi-Fi", "Bluetooth", "IR"],
+      "power": "USB-C"
+    }
+  },
+  {
+    "id": "SW-002", 
+    "name": "SwitchBot Bot",
+    "category": "Smart Switch",
+    "description": "Wireless button pusher that makes any appliance smart with physical button control",
+    "price": 29.99,
+    "stock": 85,
+    "next_availability": null,
+    "features": ["Retractable arm", "Multiple modes", "Timer function", "App control"],
+    "specifications": {
+      "dimensions": "42.8 × 37 × 24.5 mm",
+      "weight": "45g",
+      "battery": "CR2 Lithium",
+      "battery_life": "600 days"
+    }
+  },
+  {
+    "id": "SW-003",
+    "name": "SwitchBot Curtain",
+    "category": "Smart Curtain",
+    "description": "Smart curtain controller with quiet motor and solar panel charging",
+    "price": 89.99,
+    "stock": 12,
+    "next_availability": "2024-01-15",
+    "features": ["Solar charging", "Ultra quiet", "Light sensor", "App control"],
+    "specifications": {
+      "dimensions": "116 × 51 × 38 mm",
+      "weight": "320g",
+      "battery": "Lithium 2000mAh",
+      "solar_panel": "Included"
+    }
+  },
+  {
+    "id": "SW-004",
+    "name": "SwitchBot Contact Sensor",
+    "category": "Security Sensor",
+    "description": "Wireless door/window sensor for security monitoring and automation",
+    "price": 19.99,
+    "stock": 200,
+    "next_availability": null,
+    "features": ["Magnetic detection", "Light detection", "Long battery life", "Compact design"],
+    "specifications": {
+      "dimensions": "54 × 27 × 11.5 mm",
+      "weight": "23g",
+      "battery": "CR2032",
+      "battery_life": "2 years"
+    }
+  },
+  {
+    "id": "SW-005",
+    "name": "SwitchBot Motion Sensor",
+    "category": "Security Sensor", 
+    "description": "PIR motion sensor with light detection for security and automation",
+    "price": 24.99,
+    "stock": 75,
+    "next_availability": null,
+    "features": ["120° detection", "Light sensor", "Pet immunity", "Wireless"],
+    "specifications": {
+      "dimensions": "60 × 55 × 28 mm",
+      "weight": "52g",
+      "detection_range": "9m",
+      "battery": "CR2450"
+    }
+  },
+  {
+    "id": "SW-006",
+    "name": "SwitchBot Lock Pro",
+    "category": "Smart Lock",
+    "description": "Keyless smart lock with fingerprint, keypad and app control",
+    "price": 199.99,
+    "stock": 3,
+    "next_availability": "2024-01-20",
+    "features": ["Fingerprint unlock", "Keypad entry", "App control", "Auto lock"],
+    "specifications": {
+      "dimensions": "116 × 59 × 73 mm",
+      "weight": "500g",
+      "fingerprints": "100 max",
+      "battery": "4× AA"
+    }
+  },
+  {
+    "id": "SW-007",
+    "name": "SwitchBot Meter",
+    "category": "Environmental Sensor",
+    "description": "Temperature and humidity sensor with Swiss sensor and LCD display",
+    "price": 15.99,
+    "stock": 120,
+    "next_availability": null,
+    "features": ["Swiss sensor", "LCD display", "Data logging", "Alert notifications"],
+    "specifications": {
+      "dimensions": "55 × 55 × 16 mm",
+      "weight": "52g",
+      "accuracy": "±0.2°C / ±2%RH",
+      "battery": "CR2032"
+    }
+  },
+  {
+    "id": "SW-008",
+    "name": "SwitchBot Outdoor Meter",
+    "category": "Environmental Sensor",
+    "description": "Weatherproof temperature and humidity sensor for outdoor use",
+    "price": 19.99,
+    "stock": 45,
+    "next_availability": null,
+    "features": ["IP65 waterproof", "Extreme temperatures", "Long range", "Weather alerts"],
+    "specifications": {
+      "dimensions": "55 × 55 × 22 mm", 
+      "weight": "65g",
+      "temperature_range": "-20°C to 60°C",
+      "waterproof": "IP65"
+    }
+  },
+  {
+    "id": "SW-009",
+    "name": "SwitchBot Color Bulb",
+    "category": "Smart Lighting",
+    "description": "RGB smart bulb with 16 million colors and music sync",
+    "price": 12.99,
+    "stock": 95,
+    "next_availability": null,
+    "features": ["16M colors", "Music sync", "Schedule", "Voice control"],
+    "specifications": {
+      "power": "9W",
+      "brightness": "800 lumens", 
+      "base": "E26/E27",
+      "lifespan": "25000 hours"
+    }
+  },
+  {
+    "id": "SW-010",
+    "name": "SwitchBot Indoor Cam",
+    "category": "Security Camera",
+    "description": "1080p indoor security camera with pan/tilt and night vision",
+    "price": 39.99,
+    "stock": 0,
+    "next_availability": "2024-01-25",
+    "features": ["1080p HD", "Pan/tilt", "Night vision", "Two-way audio"],
+    "specifications": {
+      "resolution": "1920×1080",
+      "field_of_view": "115°",
+      "night_vision": "10m",
+      "storage": "MicroSD/Cloud"
+    }
+  },
+  {
+    "id": "SW-011",
+    "name": "SwitchBot Blind Tilt",
+    "category": "Smart Blinds",
+    "description": "Smart device to automate horizontal blinds with precise tilt control",
+    "price": 69.99,
+    "stock": 25,
+    "next_availability": null,
+    "features": ["Solar charging", "Precise control", "Schedule", "Light sensor"],
+    "specifications": {
+      "dimensions": "110 × 52 × 42 mm",
+      "weight": "250g",
+      "battery": "2000mAh",
+      "solar_panel": "Included"
+    }
+  },
+  {
+    "id": "SW-012",
+    "name": "SwitchBot Plug Mini",
+    "category": "Smart Plug",
+    "description": "Compact smart plug with energy monitoring and schedule control",
+    "price": 14.99,
+    "stock": 180,
+    "next_availability": null,
+    "features": ["Energy monitoring", "Schedule", "Voice control", "Compact design"],
+    "specifications": {
+      "dimensions": "70 × 39 × 39 mm",
+      "max_load": "15A",
+      "connectivity": "Wi-Fi 2.4GHz",
+      "certifications": "FCC, UL"
+    }
+  }
+]

@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ContosoMesh - Smart Home Supply Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50" x-data="contosoApp()">
+    <!-- Header -->
+    <header class="bg-blue-600 text-white shadow-lg">
+        <div class="container mx-auto px-4 py-6">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <i class="fas fa-home text-2xl"></i>
+                    <div>
+                        <h1 class="text-2xl font-bold">ContosoMesh</h1>
+                        <p class="text-blue-200">Smart Home Supply Management</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button @click="showOrderForm = true" class="bg-white text-blue-600 px-4 py-2 rounded-lg font-semibold hover:bg-blue-50 transition">
+                        <i class="fas fa-plus mr-2"></i>New Order
+                    </button>
+                    <button @click="refreshData()" class="bg-blue-700 text-white px-4 py-2 rounded-lg hover:bg-blue-800 transition">
+                        <i class="fas fa-sync-alt mr-2"></i>Refresh
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        <!-- Tabs -->
+        <div class="flex space-x-1 mb-8 bg-white rounded-lg p-1 shadow">
+            <button @click="activeTab = 'products'" 
+                    :class="activeTab === 'products' ? 'bg-blue-600 text-white' : 'text-gray-600 hover:text-blue-600'"
+                    class="px-6 py-3 rounded-lg font-medium transition">
+                <i class="fas fa-shopping-bag mr-2"></i>Products
+            </button>
+            <button @click="activeTab = 'orders'" 
+                    :class="activeTab === 'orders' ? 'bg-blue-600 text-white' : 'text-gray-600 hover:text-blue-600'"
+                    class="px-6 py-3 rounded-lg font-medium transition">
+                <i class="fas fa-receipt mr-2"></i>Orders
+            </button>
+            <button @click="activeTab = 'warehouse'" 
+                    :class="activeTab === 'warehouse' ? 'bg-blue-600 text-white' : 'text-gray-600 hover:text-blue-600'"
+                    class="px-6 py-3 rounded-lg font-medium transition">
+                <i class="fas fa-warehouse mr-2"></i>Warehouse
+            </button>
+        </div>
+
+        <!-- Products Tab -->
+        <div x-show="activeTab === 'products'" class="space-y-6">
+            <!-- Search and Filters -->
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex flex-wrap gap-4 items-center">
+                    <div class="flex-1 min-w-64">
+                        <input type="text" x-model="searchQuery" @input="searchProducts()" 
+                               placeholder="Search products..." 
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    </div>
+                    <select x-model="categoryFilter" @change="searchProducts()" 
+                            class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        <option value="">All Categories</option>
+                        <option value="Smart Home Hub">Smart Home Hub</option>
+                        <option value="Security Sensor">Security Sensor</option>
+                        <option value="Smart Lighting">Smart Lighting</option>
+                        <option value="Smart Lock">Smart Lock</option>
+                        <option value="Environmental Sensor">Environmental Sensor</option>
+                    </select>
+                    <label class="flex items-center space-x-2">
+                        <input type="checkbox" x-model="inStockOnly" @change="searchProducts()" class="rounded">
+                        <span>In Stock Only</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Products Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <template x-for="product in displayedProducts" :key="product.id">
+                    <div class="bg-white rounded-lg shadow hover:shadow-lg transition p-6">
+                        <div class="mb-4">
+                            <h3 class="font-bold text-lg mb-2" x-text="product.name"></h3>
+                            <p class="text-sm text-gray-600 mb-2" x-text="product.category"></p>
+                            <p class="text-sm text-gray-700" x-text="product.description"></p>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-2xl font-bold text-blue-600" x-text="'$' + product.price.toFixed(2)"></span>
+                                <span :class="product.stock > 0 ? 'text-green-600' : 'text-red-600'" 
+                                      class="text-sm font-medium">
+                                    <span x-text="product.stock"></span> in stock
+                                </span>
+                            </div>
+                            <div x-show="product.next_availability" class="text-sm text-orange-600">
+                                Next available: <span x-text="product.next_availability"></span>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center space-x-2">
+                            <input type="number" :id="'qty-' + product.id" min="1" value="1" 
+                                   class="w-20 px-2 py-1 border border-gray-300 rounded text-center">
+                            <button @click="addToCart(product)" 
+                                    class="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+                                <i class="fas fa-cart-plus mr-2"></i>Add to Cart
+                            </button>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </div>
+
+        <!-- Orders Tab -->
+        <div x-show="activeTab === 'orders'" class="space-y-6">
+            <div class="bg-white rounded-lg shadow overflow-hidden">
+                <div class="p-6 border-b border-gray-200">
+                    <h2 class="text-xl font-bold">Recent Orders</h2>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Order ID</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Customer</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Total</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Created</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200">
+                            <template x-for="order in orders" :key="order.id">
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900" x-text="order.id"></td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" x-text="order.customer_name"></td>
+                                    <td class="px-6 py-4 whitespace-nowrap">
+                                        <span :class="getStatusColor(order.status)" 
+                                              class="px-2 py-1 text-xs font-medium rounded-full" 
+                                              x-text="order.status"></span>
+                                    </td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" 
+                                        x-text="order.total_amount ? '$' + order.total_amount.toFixed(2) : 'Pending'"></td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" 
+                                        x-text="formatDate(order.created_at)"></td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                                        <button @click="viewOrderDetails(order.id)" 
+                                                class="text-blue-600 hover:text-blue-900">View</button>
+                                        <button @click="cancelOrder(order.id)" 
+                                                x-show="order.status !== 'cancelled' && order.status !== 'completed'"
+                                                class="text-red-600 hover:text-red-900">Cancel</button>
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Warehouse Tab -->
+        <div x-show="activeTab === 'warehouse'" class="space-y-6">
+            <div class="bg-white rounded-lg shadow p-6">
+                <h2 class="text-xl font-bold mb-4">Warehouse Status</h2>
+                <template x-if="warehouseStatus">
+                    <div class="space-y-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <div class="bg-blue-50 p-4 rounded-lg">
+                                <h3 class="font-semibold text-blue-900">Overall Utilization</h3>
+                                <p class="text-2xl font-bold text-blue-600" x-text="warehouseStatus.data?.overall_utilization + '%'"></p>
+                            </div>
+                            <div class="bg-green-50 p-4 rounded-lg">
+                                <h3 class="font-semibold text-green-900">Total Capacity</h3>
+                                <p class="text-2xl font-bold text-green-600" x-text="warehouseStatus.data?.total_capacity"></p>
+                            </div>
+                            <div class="bg-orange-50 p-4 rounded-lg">
+                                <h3 class="font-semibold text-orange-900">Current Load</h3>
+                                <p class="text-2xl font-bold text-orange-600" x-text="warehouseStatus.data?.total_load"></p>
+                            </div>
+                            <div class="bg-purple-50 p-4 rounded-lg">
+                                <h3 class="font-semibold text-purple-900">Active Zones</h3>
+                                <p class="text-2xl font-bold text-purple-600" x-text="warehouseStatus.data?.zone_status?.length || 0"></p>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-6">
+                            <h3 class="text-lg font-semibold mb-4">Zone Details</h3>
+                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                                <template x-for="zone in warehouseStatus.data?.zone_status" :key="zone.zone">
+                                    <div class="border border-gray-200 rounded-lg p-4">
+                                        <div class="flex justify-between items-start mb-2">
+                                            <h4 class="font-medium" x-text="zone.zone"></h4>
+                                            <span :class="getZoneStatusColor(zone.status)" 
+                                                  class="px-2 py-1 text-xs font-medium rounded-full" 
+                                                  x-text="zone.status"></span>
+                                        </div>
+                                        <p class="text-sm text-gray-600 mb-2" x-text="zone.specialization"></p>
+                                        <div class="flex justify-between text-sm">
+                                            <span>Utilization:</span>
+                                            <span x-text="zone.utilization_percent + '%'"></span>
+                                        </div>
+                                        <div class="flex justify-between text-sm">
+                                            <span>Load:</span>
+                                            <span x-text="zone.current_load + ' / ' + zone.capacity"></span>
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </div>
+    </main>
+
+    <!-- Order Form Modal -->
+    <div x-show="showOrderForm" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" x-cloak>
+        <div class="bg-white rounded-lg p-6 w-full max-w-2xl max-h-full overflow-y-auto">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-bold">Create New Order</h2>
+                <button @click="showOrderForm = false" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+
+            <form @submit.prevent="submitOrder()">
+                <div class="space-y-4 mb-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Customer Name</label>
+                        <input type="text" x-model="orderForm.customer_name" required 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Customer Email</label>
+                        <input type="email" x-model="orderForm.customer_email" required 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <h3 class="text-lg font-semibold mb-4">Cart Items</h3>
+                    <template x-if="cart.length === 0">
+                        <p class="text-gray-500">No items in cart. Add products from the Products tab.</p>
+                    </template>
+                    <div class="space-y-3">
+                        <template x-for="(item, index) in cart" :key="index">
+                            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                <div class="flex-1">
+                                    <h4 class="font-medium" x-text="item.product.name"></h4>
+                                    <p class="text-sm text-gray-600" x-text="'$' + item.product.price.toFixed(2) + ' each'"></p>
+                                </div>
+                                <div class="flex items-center space-x-3">
+                                    <input type="number" x-model="item.quantity" min="1" 
+                                           @change="updateCartTotal()"
+                                           class="w-20 px-2 py-1 border border-gray-300 rounded text-center">
+                                    <span class="font-medium" x-text="'$' + (item.product.price * item.quantity).toFixed(2)"></span>
+                                    <button type="button" @click="removeFromCart(index)" 
+                                            class="text-red-600 hover:text-red-900">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                    <template x-if="cart.length > 0">
+                        <div class="mt-4 p-3 bg-blue-50 rounded-lg">
+                            <div class="flex justify-between items-center">
+                                <span class="font-semibold">Total:</span>
+                                <span class="text-xl font-bold text-blue-600" x-text="'$' + cartTotal.toFixed(2)"></span>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+
+                <div class="flex space-x-4">
+                    <button type="button" @click="showOrderForm = false" 
+                            class="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+                        Cancel
+                    </button>
+                    <button type="submit" :disabled="cart.length === 0 || submittingOrder" 
+                            class="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition disabled:opacity-50">
+                        <span x-show="!submittingOrder">Create Order</span>
+                        <span x-show="submittingOrder">
+                            <i class="fas fa-spinner fa-spin mr-2"></i>Processing...
+                        </span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Agent Activity Panel -->
+    <div class="fixed bottom-4 right-4 w-96" x-data="{ showLogs: false }">
+        <div class="bg-white rounded-lg shadow-lg border border-gray-200">
+            <div class="p-4 border-b border-gray-200 cursor-pointer" @click="showLogs = !showLogs">
+                <div class="flex items-center justify-between">
+                    <h3 class="font-semibold text-gray-900">
+                        <i class="fas fa-robot mr-2 text-blue-600"></i>Agent Activity
+                    </h3>
+                    <div class="flex items-center space-x-2">
+                        <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full" 
+                              x-text="agentStats.recent_activity_count + ' active'"></span>
+                        <i :class="showLogs ? 'fa-chevron-down' : 'fa-chevron-up'" class="fas text-gray-500"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <div x-show="showLogs" x-collapse class="max-h-80 overflow-y-auto">
+                <div class="p-4 space-y-2">
+                    <template x-for="agent in Object.keys(agentStats.agent_activity || {})" :key="agent">
+                        <div class="flex items-center justify-between p-2 rounded" 
+                             :style="'background-color: ' + agentStats.agent_activity[agent].color + '15'">
+                            <span class="font-medium" x-text="agent"></span>
+                            <div class="flex items-center space-x-2">
+                                <span class="text-sm text-gray-600" 
+                                      x-text="agentStats.agent_activity[agent].total_actions + ' actions'"></span>
+                                <div class="w-3 h-3 rounded-full" 
+                                     :style="'background-color: ' + agentStats.agent_activity[agent].color"
+                                     :class="agentStats.agent_activity[agent].recent_actions > 0 ? 'animate-pulse' : ''"></div>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+                
+                <div class="p-4 border-t border-gray-200">
+                    <h4 class="font-medium mb-2">Recent Activity</h4>
+                    <div class="space-y-1 max-h-40 overflow-y-auto">
+                        <template x-for="log in recentLogs.slice(0, 10)" :key="log.timestamp">
+                            <div class="text-xs p-2 rounded" 
+                                 :style="'border-left: 3px solid ' + log.color">
+                                <div class="flex justify-between">
+                                    <span class="font-medium" x-text="log.agent_name"></span>
+                                    <span class="text-gray-500" x-text="formatTime(log.timestamp)"></span>
+                                </div>
+                                <div class="text-gray-700" x-text="log.action + ': ' + log.message"></div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function contosoApp() {
+            return {
+                activeTab: 'products',
+                products: {{ products | tojson }},
+                orders: {{ orders | tojson }},
+                agentStats: {{ agent_stats | tojson }},
+                displayedProducts: [],
+                searchQuery: '',
+                categoryFilter: '',
+                inStockOnly: false,
+                cart: [],
+                cartTotal: 0,
+                showOrderForm: false,
+                orderForm: {
+                    customer_name: '',
+                    customer_email: ''
+                },
+                submittingOrder: false,
+                recentLogs: [],
+                warehouseStatus: null,
+                websocket: null,
+
+                init() {
+                    this.displayedProducts = this.products;
+                    this.updateCartTotal();
+                    this.loadWarehouseStatus();
+                    this.connectWebSocket();
+                },
+
+                searchProducts() {
+                    let filtered = this.products;
+                    
+                    if (this.searchQuery) {
+                        const query = this.searchQuery.toLowerCase();
+                        filtered = filtered.filter(p => 
+                            p.name.toLowerCase().includes(query) ||
+                            p.description.toLowerCase().includes(query) ||
+                            p.category.toLowerCase().includes(query)
+                        );
+                    }
+                    
+                    if (this.categoryFilter) {
+                        filtered = filtered.filter(p => p.category === this.categoryFilter);
+                    }
+                    
+                    if (this.inStockOnly) {
+                        filtered = filtered.filter(p => p.stock > 0);
+                    }
+                    
+                    this.displayedProducts = filtered;
+                },
+
+                addToCart(product) {
+                    const qtyInput = document.getElementById('qty-' + product.id);
+                    const quantity = parseInt(qtyInput.value) || 1;
+                    
+                    const existingItem = this.cart.find(item => item.product.id === product.id);
+                    if (existingItem) {
+                        existingItem.quantity += quantity;
+                    } else {
+                        this.cart.push({ product: product, quantity: quantity });
+                    }
+                    
+                    this.updateCartTotal();
+                    qtyInput.value = 1;
+                },
+
+                removeFromCart(index) {
+                    this.cart.splice(index, 1);
+                    this.updateCartTotal();
+                },
+
+                updateCartTotal() {
+                    this.cartTotal = this.cart.reduce((total, item) => 
+                        total + (item.product.price * item.quantity), 0);
+                },
+
+                async submitOrder() {
+                    if (this.cart.length === 0) return;
+                    
+                    this.submittingOrder = true;
+                    
+                    try {
+                        const orderData = {
+                            customer_name: this.orderForm.customer_name,
+                            customer_email: this.orderForm.customer_email,
+                            items: this.cart.map(item => ({
+                                product_id: item.product.id,
+                                quantity: item.quantity
+                            }))
+                        };
+                        
+                        const response = await fetch('/api/orders', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(orderData)
+                        });
+                        
+                        const result = await response.json();
+                        
+                        if (result.success) {
+                            alert('Order created successfully! Order ID: ' + result.order_id);
+                            this.showOrderForm = false;
+                            this.cart = [];
+                            this.cartTotal = 0;
+                            this.orderForm = { customer_name: '', customer_email: '' };
+                            this.refreshData();
+                        } else {
+                            alert('Order creation failed: ' + result.message);
+                        }
+                    } catch (error) {
+                        alert('Error creating order: ' + error.message);
+                    } finally {
+                        this.submittingOrder = false;
+                    }
+                },
+
+                async refreshData() {
+                    try {
+                        // Refresh products
+                        const productsResponse = await fetch('/api/products');
+                        const productsData = await productsResponse.json();
+                        this.products = productsData.products;
+                        this.searchProducts();
+                        
+                        // Refresh orders
+                        const ordersResponse = await fetch('/api/orders');
+                        const ordersData = await ordersResponse.json();
+                        this.orders = ordersData.orders;
+                        
+                        // Refresh agent stats
+                        const statsResponse = await fetch('/api/agents/statistics');
+                        this.agentStats = await statsResponse.json();
+                        
+                        // Refresh warehouse status
+                        this.loadWarehouseStatus();
+                    } catch (error) {
+                        console.error('Error refreshing data:', error);
+                    }
+                },
+
+                async loadWarehouseStatus() {
+                    try {
+                        const response = await fetch('/api/warehouse/status');
+                        this.warehouseStatus = await response.json();
+                    } catch (error) {
+                        console.error('Error loading warehouse status:', error);
+                    }
+                },
+
+                async viewOrderDetails(orderId) {
+                    try {
+                        const response = await fetch(`/api/orders/${orderId}`);
+                        const orderDetails = await response.json();
+                        
+                        // For now, just show an alert with basic info
+                        // In a real app, you'd open a detailed modal
+                        alert(JSON.stringify(orderDetails, null, 2));
+                    } catch (error) {
+                        alert('Error loading order details: ' + error.message);
+                    }
+                },
+
+                async cancelOrder(orderId) {
+                    if (!confirm('Are you sure you want to cancel this order?')) return;
+                    
+                    try {
+                        const response = await fetch(`/api/orders/${orderId}`, {
+                            method: 'DELETE'
+                        });
+                        
+                        const result = await response.json();
+                        if (result.success) {
+                            alert('Order cancelled successfully');
+                            this.refreshData();
+                        } else {
+                            alert('Failed to cancel order: ' + result.message);
+                        }
+                    } catch (error) {
+                        alert('Error cancelling order: ' + error.message);
+                    }
+                },
+
+                connectWebSocket() {
+                    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+                    const wsUrl = `${protocol}//${window.location.host}/ws/agent-logs`;
+                    
+                    this.websocket = new WebSocket(wsUrl);
+                    
+                    this.websocket.onmessage = (event) => {
+                        const data = JSON.parse(event.data);
+                        
+                        if (data.type === 'new_logs') {
+                            this.recentLogs = [...data.logs, ...this.recentLogs].slice(0, 50);
+                        } else if (data.type === 'agent_stats_update') {
+                            this.agentStats = data.data;
+                        }
+                    };
+                    
+                    this.websocket.onerror = (error) => {
+                        console.error('WebSocket error:', error);
+                    };
+                    
+                    this.websocket.onclose = () => {
+                        // Reconnect after 5 seconds
+                        setTimeout(() => this.connectWebSocket(), 5000);
+                    };
+                },
+
+                getStatusColor(status) {
+                    const colors = {
+                        'pending': 'bg-yellow-100 text-yellow-800',
+                        'processing': 'bg-blue-100 text-blue-800',
+                        'stocks_checked': 'bg-green-100 text-green-800',
+                        'priced': 'bg-purple-100 text-purple-800',
+                        'delivery_planned': 'bg-indigo-100 text-indigo-800',
+                        'logistics_notified': 'bg-orange-100 text-orange-800',
+                        'completed': 'bg-green-100 text-green-800',
+                        'cancelled': 'bg-red-100 text-red-800'
+                    };
+                    return colors[status] || 'bg-gray-100 text-gray-800';
+                },
+
+                getZoneStatusColor(status) {
+                    const colors = {
+                        'normal': 'bg-green-100 text-green-800',
+                        'medium': 'bg-yellow-100 text-yellow-800',
+                        'high': 'bg-red-100 text-red-800'
+                    };
+                    return colors[status] || 'bg-gray-100 text-gray-800';
+                },
+
+                formatDate(dateString) {
+                    return new Date(dateString).toLocaleDateString();
+                },
+
+                formatTime(dateString) {
+                    return new Date(dateString).toLocaleTimeString();
+                }
+            }
+        }
+    </script>
+
+    <style>
+        [x-cloak] { display: none !important; }
+    </style>
+</body>
+</html>
